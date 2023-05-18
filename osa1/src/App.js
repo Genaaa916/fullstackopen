@@ -1,107 +1,60 @@
-const Header = (props) => {
-  return ( <
-    div >
-    <
-    h1 > {
-      props.course
-    } < /h1> <
-    /div>
-  )
-}
-const Total = ({
-  course
-}) => {
-  const {
-    parts
-  } = course
-  return ( <
-    div >
-    <
-    p > Number of exercises {
-      parts[0].exercises + parts[1].exercises + parts[2].exercises
-    } < /p> <
-    /div>
-  )
-}
-const Content = ({
-  course
-}) => {
-  const {
-    parts
-  } = course
-  console.log(parts)
-  return ( <
-    div >
-    <
-    Part part = {
-      parts[0]
-    }
-    /> <
-    Part part = {
-      parts[1]
-    }
-    /> <
-    Part part = {
-      parts[2]
-    }
-    /> <
-    /div>
-  )
-}
-const Part = ({
-  part
-}) => {
-  const {
-    name,
-    exercises
-  } = part
-  return ( <
-    div >
-    <
-    p > {
-      name
-    } {
-      exercises
-    } < /p> <
-    /div>
-  )
-}
+import { useState } from 'react'
 
+const Statistics = ({good, neutral, bad}) => {
+  const all = good + neutral + bad
+  const average = (good - bad) / all
+  const positive = good / all * 100
+  return (
+    <div>
+      <h2>statistics</h2>
+      <Display name = 'good' value={good}/>
+      <Display name = 'neutral' value={neutral}/>
+      <Display name = 'bad' value={bad}/>
+      <Display name = 'all' value={all}/>
+      <Display name = 'average' value={average}/>
+      <Display name = 'positive' value={positive}/>
+    </div>
+  )}
 
-const App = () => {
-  const course = {
-    name: 'Half Stack application development',
-    parts: [{
-        name: 'Fundamentals of React',
-        exercises: 10
-      },
-      {
-        name: 'Using props to pass data',
-        exercises: 7
-      },
-      {
-        name: 'State of a component',
-        exercises: 14
-      }
-    ]
+const Button = ({handleClick, text}) => (
+  <button onClick={handleClick}>
+    {text}
+  </button>
+)
+
+const Display = ({value, name}) => !isNaN(value) && <div>{name}: {value}</div>
+
+const Feedback = () => {
+  const [good, setGood] = useState(0)
+  const [neutral, setNeutral] = useState(0)
+  const [bad, setBad] = useState(0)
+
+  const increaseGood = newValue => {
+  setGood(newValue)
+  }
+  const increaseNeutral = newValue => {
+  setNeutral(newValue)
+  }
+  const increaseBad = newValue => {
+  setBad(newValue)
   }
 
-  return ( <
-    div >
-    <
-    Header course = {
-      course.name
-    }
-    /> <
-    Content course = {
-      course
-    }
-    /> <
-    Total course = {
-      course
-    }
-    /> <
-    /div>
+  return (
+    <div>
+      <h1>give feedback</h1>
+      <Button handleClick={() => increaseGood(good +1)} text="good" />
+      <Button handleClick={() => increaseNeutral(neutral +1)} text="neutral" />
+      <Button handleClick={() => increaseBad(bad +1)} text="bad" />
+      <Statistics good={good} bad={bad} neutral={neutral}/>
+    </div>
+  )
+}
+const App = () => {
+ 
+  return (
+    <div>
+      <Feedback />
+    </div>
   )
 }
 
