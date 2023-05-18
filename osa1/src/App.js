@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { useEffect } from 'react'
+import axios from 'axios'
 
 const Form = ({functions}) => {
   const [addPerson, handleNameChange, handleNumberChange] = functions
@@ -42,9 +44,16 @@ const Filter = ({filterNames}) => {
 }
 
 const App = () => {
-  const [persons, setPersons] = useState([
-    { name: 'Arto Hellas'}
-  ]) 
+
+  useEffect(() => {
+    const fetchData = async () => {
+    const response = await axios.get('http://localhost:3001/persons')
+    setPersons(response.data)
+  }
+  fetchData()
+}, [])
+
+  const [persons, setPersons] = useState([]) 
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
 
