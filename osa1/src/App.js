@@ -1,59 +1,71 @@
-import { useState } from 'react'
 
-const Statistics = ({good, neutral, bad}) => {
-  const all = good + neutral + bad
-  const average = (good - bad) / all
-  const positive = good / all * 100
+const Course = ({ course }) => {
   return (
     <div>
-      <h2>statistics</h2>
-      <Display name = 'good' value={good}/>
-      <Display name = 'neutral' value={neutral}/>
-      <Display name = 'bad' value={bad}/>
-      <Display name = 'all' value={all}/>
-      <Display name = 'average' value={average}/>
-      <Display name = 'positive' value={positive}/>
-    </div>
-  )}
-
-const Button = ({handleClick, text}) => (
-  <button onClick={handleClick}>
-    {text}
-  </button>
-)
-
-const Display = ({value, name}) => !isNaN(value) && <div>{name}: {value}</div>
-
-const Feedback = () => {
-  const [good, setGood] = useState(0)
-  const [neutral, setNeutral] = useState(0)
-  const [bad, setBad] = useState(0)
-
-  const increaseGood = newValue => {
-  setGood(newValue)
-  }
-  const increaseNeutral = newValue => {
-  setNeutral(newValue)
-  }
-  const increaseBad = newValue => {
-  setBad(newValue)
-  }
-
-  return (
-    <div>
-      <h1>give feedback</h1>
-      <Button handleClick={() => increaseGood(good +1)} text="good" />
-      <Button handleClick={() => increaseNeutral(neutral +1)} text="neutral" />
-      <Button handleClick={() => increaseBad(bad +1)} text="bad" />
-      <Statistics good={good} bad={bad} neutral={neutral}/>
+      <Header course={course} />
+      <Content course={course} />
     </div>
   )
 }
-const App = () => {
- 
+
+const Header = ({ course }) => {
+  return (
+    <h1>{course.name}</h1>
+  )
+}
+
+const Content = ({ course }) => {
+  const [parts] = [course.parts]
+  console.log(parts)
+  
   return (
     <div>
-      <Feedback />
+      {parts.map(item => <Part key={item.id} part={item} />)}
+      <Total parts={parts} />
+    </div>
+  )
+}
+
+const Total = ({ parts }) => {
+
+  return (
+    <p>Total exercises: {parts.reduce((sum, part) => sum + part.exercises, 0)} </p>
+  )
+}
+
+const Part = ({ part }) => {
+  return (
+    <p>{part.name} {part.exercises}</p>
+  )
+}
+
+
+const App = () => {
+  const course = {
+    name: 'Half Stack application development',
+    id: 1,
+    parts: [
+      {
+        name: 'Fundamentals of React',
+        exercises: 10,
+        id: 1
+      },
+      {
+        name: 'Using props to pass data',
+        exercises: 7,
+        id: 2
+      },
+      {
+        name: 'State of a component',
+        exercises: 14,
+        id: 3
+      }
+    ]
+  }
+
+  return (
+    <div>
+      <Course course={course} />
     </div>
   )
 }
