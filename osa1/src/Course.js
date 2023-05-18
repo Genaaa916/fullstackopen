@@ -29,13 +29,13 @@ const Content = ({ course }) => {
 const Total = ({ parts }) => {
 
   return (
-    <p>Total exercises: {parts.reduce((sum, part) => sum + part.exercises, 0)} </p>
+    <p>Total exercises: {parts.reduce((sum, part) => sum + part.exercises, 0)} op.</p>
   )
 }
 
 const Part = ({ part }) => {
   return (
-    <p>{part.name} {part.exercises}</p>
+    <p>{part.id}. {part.name}: {part.exercises} op.</p>
   )
 }
 
