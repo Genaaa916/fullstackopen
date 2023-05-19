@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useEffect } from "react";
 import axios from "axios";
-import { post } from "jquery";
 
 const Form = ({ functions }) => {
   const [addPerson, handleNameChange, handleNumberChange] = functions;
@@ -22,18 +21,23 @@ const Form = ({ functions }) => {
     </div>
   );
 };
-const Phonebook = ({ persons }) => {
+const Phonebook = ({ persons, deletePerson }) => {
   return (
     <div>
       <h2>Numbers</h2>
       {persons.map((person) => (
-        <p key={person.id}>
-          {person.name} - {person.number}
-        </p>
+        <div>
+          {" "}
+          <p key={person.id}>
+            {person.name} - {person.number}
+          </p>
+          <button onClick={() => deletePerson(person)}>Delete</button>
+        </div>
       ))}
     </div>
   );
 };
+
 const Filter = ({ filterNames }) => {
   return (
     <div>
@@ -41,6 +45,7 @@ const Filter = ({ filterNames }) => {
     </div>
   );
 };
+
 const App = () => {
   const [error, setError] = useState(null);
   const [persons, setPersons] = useState([]);
@@ -50,10 +55,13 @@ const App = () => {
   const handleNameChange = (e) => {
     setNewName(e.target.value);
   };
+
+  const baseUrl = "http://localhost:3001/";
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get("http://localhost:3001/persons");
+        const response = await axios.get(`${baseUrl}persons`);
         setPersons(response.data);
         setError(null);
       } catch (err) {
@@ -83,24 +91,29 @@ const App = () => {
     persons.find((i) => i.name === newName)
       ? alert(`${newName} is already added to phonebook`)
       : setPersons(persons.concat(newPerson));
-    const postPerson = async () => {
+
+    (async () => {
       try {
-        await axios.post("http://localhost:3001/persons", newPerson);
+        await axios.post(`${baseUrl}persons`, newPerson);
       } catch (err) {
         setError(err);
         console.log("error");
       }
-    };
-    postPerson();
+    })();
     setNewName("");
     e.target.reset();
   };
+
+  const deletePerson = (person) => {
+    axios.delete(`${baseUrl}persons/${person.id}`);
+  };
+
   return (
     <div>
       <Filter filterNames={filterNames} />
       <Form functions={[addPerson, handleNameChange, handleNumberChange]} />
       {!error ? (
-        <Phonebook persons={persons} />
+        <Phonebook deletePerson={deletePerson} persons={persons} />
       ) : (
         <div>
           <p>Something went wrong</p>
