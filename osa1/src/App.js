@@ -57,7 +57,8 @@ const App = () => {
         setPersons(response.data);
         setError(null);
       } catch (err) {
-        setError("Error fetching data");
+        setError(err);
+        console.log(error);
       }
     };
     fetchData();
@@ -72,6 +73,7 @@ const App = () => {
     );
     setPersons(filtered);
   };
+
   const addPerson = (e) => {
     e.preventDefault();
     const newPerson = {
@@ -82,11 +84,12 @@ const App = () => {
       ? alert(`${newName} is already added to phonebook`)
       : setPersons(persons.concat(newPerson));
     const postPerson = async () => {
-      const response = await axios.post(
-        "http://localhost:3001/persons",
-        newPerson
-      );
-      response === 201 ? console.log("success") : console.log("error");
+      try {
+        await axios.post("http://localhost:3001/persons", newPerson);
+      } catch (err) {
+        setError(err);
+        console.log("error");
+      }
     };
     postPerson();
     setNewName("");
@@ -96,7 +99,15 @@ const App = () => {
     <div>
       <Filter filterNames={filterNames} />
       <Form functions={[addPerson, handleNameChange, handleNumberChange]} />
-      <Phonebook persons={persons} />
+      {!error ? (
+        <Phonebook persons={persons} />
+      ) : (
+        <div>
+          <p>Something went wrong</p>
+          <p>{error.message}</p>
+          <button onClick={addPerson}>Try again</button>
+        </div>
+      )}
     </div>
   );
 };
