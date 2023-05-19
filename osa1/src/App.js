@@ -22,6 +22,8 @@ const Form = ({ functions }) => {
   );
 };
 const Phonebook = ({ persons, deletePerson }) => {
+  const [person, setPerson] = useState(persons);
+
   return (
     <div>
       <h2>Numbers</h2>
@@ -83,7 +85,6 @@ const App = () => {
   };
 
   const addPerson = (e) => {
-    e.preventDefault();
     const newPerson = {
       name: newName,
       number: newNumber,
@@ -106,6 +107,7 @@ const App = () => {
 
   const deletePerson = (person) => {
     axios.delete(`${baseUrl}persons/${person.id}`);
+    setPersons(persons.filter((i) => i.id !== person.id));
   };
 
   return (
