@@ -89,15 +89,15 @@ const App = () => {
     console.log(filteredPersons);
   };
 
-  const updatePerson = (person) => {
+  const updatePerson = async (person) => {
     window.confirm(`${person.name} is already added, replace the old number?`);
     try {
       const updatedPerson = { ...person, number: newNumber };
-      axios.put(`${baseUrl}persons/${person.id}`, updatedPerson);
+      await axios.put(`${baseUrl}persons/${person.id}`, updatedPerson);
       setPersons(persons.map((i) => (i.id !== person.id ? i : updatedPerson)));
     } catch (err) {
-      setError(err);
-      console.log("error");
+      setError(err.response);
+      console.log(err.response);
     }
   };
 
@@ -106,7 +106,7 @@ const App = () => {
       await axios.post(`${baseUrl}persons`, newPerson);
       setPersons(persons.concat(newPerson));
     } catch (err) {
-      setError(err);
+      setError(err.response);
       console.log("error");
     }
   };
@@ -130,9 +130,9 @@ const App = () => {
     try {
       await axios.delete(`${baseUrl}persons/${person.id}`);
       setPersons(persons.filter((i) => i.id !== person.id));
-    } catch (err) {
       setError(null);
-      setError(err);
+    } catch (err) {
+      setError(err.response);
     }
   };
 
@@ -145,7 +145,7 @@ const App = () => {
       ) : (
         <div className="error">
           <p>Something went wrong</p>
-          <p>{error.message}</p>
+          <p>{error.status === 404 ? "Not found" : error.message}</p>
           <button onClick={addPerson}>Try again</button>
         </div>
       )}
