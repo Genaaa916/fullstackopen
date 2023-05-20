@@ -2,12 +2,12 @@ import { useState } from "react";
 import { useEffect } from "react";
 import axios from "axios";
 
-const Form = ({ functions, persons }) => {
-  const [updateOrAddPerson, handleNameChange, handleNumberChange] = functions;
+const Form = ({ functions }) => {
+  const [addPerson, handleNameChange, handleNumberChange] = functions;
   return (
     <div>
       <h2>Phonebook</h2>
-      <form onSubmit={() => updateOrAddPerson(persons)}>
+      <form onSubmit={addPerson}>
         <div>
           name: <input onChange={handleNameChange} />
         </div>
@@ -28,6 +28,7 @@ const Phonebook = ({ persons, deletePerson }) => {
       <h2>Numbers</h2>
       {persons.map((person) => (
         <div>
+          {" "}
           <p key={person.id}>
             {person.name} - {person.number}
           </p>
@@ -59,27 +60,22 @@ const App = () => {
   const baseUrl = "http://localhost:3001/";
 
   useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(`${baseUrl}persons`);
+        setPersons(response.data);
+        setError(null);
+        console.log(persons);
+      } catch (err) {
+        setError(err);
+        console.log(error);
+      }
+    };
     fetchData();
   }, []);
-  const fetchData = async () => {
-    try {
-      const response = await axios.get(`${baseUrl}persons`);
-      setPersons(response.data);
-      setError(null);
-      console.log(persons);
-    } catch (err) {
-      setError(err);
-      console.log(error);
-    }
-  };
 
   const handleNumberChange = (e) => {
     setNewNumber(e.target.value);
-  };
-
-  const updateOrAddPerson = (persons) => {
-    const person = persons.find((i) => i.name === newName);
-    person ? updatePerson(person) : addPerson();
   };
 
   const filterNames = (e) => {
@@ -94,28 +90,33 @@ const App = () => {
   };
 
   const updatePerson = (person) => {
+    console.log(person.name);
     window.confirm(`${person.name} is already added, replace the old number?`);
     const updatedPerson = { ...person, number: newNumber };
     axios.put(`${baseUrl}persons/${person.id}`, updatedPerson);
     setPersons(persons.map((i) => (i.id !== person.id ? i : updatedPerson)));
   };
-
+  const postPerson = async (newPerson) => {
+    try {
+      await axios.post(`${baseUrl}persons`, newPerson);
+      setPersons(persons.concat(newPerson));
+    } catch (err) {
+      setError(err);
+      console.log("error");
+    }
+  };
   const addPerson = (e) => {
     e.preventDefault();
     const newPerson = {
       name: newName,
+      id: persons.length + 1,
       number: newNumber,
     };
-
-    (async () => {
-      try {
-        await axios.post(`${baseUrl}persons`, newPerson);
-      } catch (err) {
-        setError(err);
-        console.log("error");
-      }
-    })();
-    setPersons(persons.concat(newPerson));
+    persons.exists = (person) => person.name === newName;
+    persons.exists
+      ? updatePerson(persons.find((i) => i.name === newName))
+      : postPerson(newPerson);
+    setNewNumber("");
     setNewName("");
     e.target.reset();
   };
@@ -128,21 +129,9 @@ const App = () => {
   return (
     <div>
       <Filter filterNames={filterNames} />
-      <Form
-        persons={persons}
-        functions={[
-          addPerson,
-          handleNameChange,
-          handleNumberChange,
-          updateOrAddPerson,
-        ]}
-      />
+      <Form functions={[addPerson, handleNameChange, handleNumberChange]} />
       {!error ? (
-        <Phonebook
-          updatepPerson={updatePerson}
-          deletePerson={deletePerson}
-          persons={persons}
-        />
+        <Phonebook deletePerson={deletePerson} persons={persons} />
       ) : (
         <div>
           <p>Something went wrong</p>
