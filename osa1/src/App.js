@@ -60,20 +60,20 @@ const App = () => {
   const baseUrl = "http://localhost:3001/";
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(`${baseUrl}persons`);
-        setPersons(response.data);
-        setError(null);
-        console.log(persons);
-      } catch (err) {
-        setError(err);
-        console.log(error);
-      }
-    };
-    fetchData();
+    getAll();
   }, []);
 
+  const getAll = async () => {
+    try {
+      const response = await axios.get(`${baseUrl}persons`);
+      setPersons(response.data);
+      setError(null);
+      console.log(persons);
+    } catch (err) {
+      setError(err);
+      console.log(error);
+    }
+  };
   const handleNumberChange = (e) => {
     setNewNumber(e.target.value);
   };
@@ -96,6 +96,7 @@ const App = () => {
     axios.put(`${baseUrl}persons/${person.id}`, updatedPerson);
     setPersons(persons.map((i) => (i.id !== person.id ? i : updatedPerson)));
   };
+
   const postPerson = async (newPerson) => {
     try {
       await axios.post(`${baseUrl}persons`, newPerson);
