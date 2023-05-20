@@ -29,7 +29,7 @@ const Phonebook = ({ persons, deletePerson }) => {
       {persons.map((person) => (
         <div>
           {" "}
-          <p key={person.id}>
+          <p className="person" key={person.id}>
             {person.name} - {person.number}
           </p>
           <button onClick={() => deletePerson(person)}>Delete</button>
@@ -90,11 +90,15 @@ const App = () => {
   };
 
   const updatePerson = (person) => {
-    console.log(person.name);
     window.confirm(`${person.name} is already added, replace the old number?`);
-    const updatedPerson = { ...person, number: newNumber };
-    axios.put(`${baseUrl}persons/${person.id}`, updatedPerson);
-    setPersons(persons.map((i) => (i.id !== person.id ? i : updatedPerson)));
+    try {
+      const updatedPerson = { ...person, number: newNumber };
+      axios.put(`${baseUrl}persons/${person.id}`, updatedPerson);
+      setPersons(persons.map((i) => (i.id !== person.id ? i : updatedPerson)));
+    } catch (err) {
+      setError(err);
+      console.log("error");
+    }
   };
 
   const postPerson = async (newPerson) => {
@@ -113,8 +117,8 @@ const App = () => {
       id: persons.length + 1,
       number: newNumber,
     };
-    persons.exists = (person) => person.name === newName;
-    persons.exists
+    persons.alreadyExists = persons.find((i) => i.name === newName);
+    persons.alreadyExists
       ? updatePerson(persons.find((i) => i.name === newName))
       : postPerson(newPerson);
     setNewNumber("");
@@ -122,9 +126,14 @@ const App = () => {
     e.target.reset();
   };
 
-  const deletePerson = (person) => {
-    axios.delete(`${baseUrl}persons/${person.id}`);
-    setPersons(persons.filter((i) => i.id !== person.id));
+  const deletePerson = async (person) => {
+    try {
+      await axios.delete(`${baseUrl}persons/${person.id}`);
+      setPersons(persons.filter((i) => i.id !== person.id));
+    } catch (err) {
+      setError(null);
+      setError(err);
+    }
   };
 
   return (
@@ -134,7 +143,7 @@ const App = () => {
       {!error ? (
         <Phonebook deletePerson={deletePerson} persons={persons} />
       ) : (
-        <div>
+        <div className="error">
           <p>Something went wrong</p>
           <p>{error.message}</p>
           <button onClick={addPerson}>Try again</button>
