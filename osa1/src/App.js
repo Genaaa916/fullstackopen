@@ -57,7 +57,7 @@ const App = () => {
     setNewName(e.target.value);
   };
 
-  const baseUrl = "http://localhost:3001/";
+  const baseUrl = "/api/";
 
   useEffect(() => {
     getAll();
@@ -66,9 +66,8 @@ const App = () => {
   const getAll = async () => {
     try {
       const response = await axios.get(`${baseUrl}persons`);
-      setPersons(response.data);
+      setPersons(response.data.persons);
       setError(null);
-      console.log(persons);
     } catch (err) {
       setError(err);
       console.log(error);
