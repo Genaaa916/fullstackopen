@@ -28,7 +28,6 @@ const Phonebook = ({ persons, deletePerson }) => {
       <h2>Numbers</h2>
       {persons.map((person) => (
         <div>
-          {" "}
           <p className="person" key={person._id}>
             {person.name} - {person.number}
           </p>
