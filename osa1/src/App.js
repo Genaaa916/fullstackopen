@@ -93,10 +93,10 @@ const App = () => {
     window.confirm(`${person.name} is already added, replace the old number?`);
     try {
       const updatedPerson = { ...person, number: newNumber };
-      await axios.put(`${baseUrl}persons/${person._id}`, updatedPerson);
-      setPersons(
-        persons.map((i) => (i._id !== person._id ? i : updatedPerson))
-      );
+      console.log(updatedPerson);
+      await axios.put(`${baseUrl}persons/`, updatedPerson);
+      console.log(updatedPerson.number);
+      getAll();
     } catch (err) {
       setError(err.response);
       console.log(err.response);
