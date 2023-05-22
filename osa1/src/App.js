@@ -29,7 +29,7 @@ const Phonebook = ({ persons, deletePerson }) => {
       {persons.map((person) => (
         <div>
           {" "}
-          <p className="person" key={person.id}>
+          <p className="person" key={person._id}>
             {person.name} - {person.number}
           </p>
           <button onClick={() => deletePerson(person)}>Delete</button>
@@ -66,7 +66,8 @@ const App = () => {
   const getAll = async () => {
     try {
       const response = await axios.get(`${baseUrl}persons`);
-      setPersons(response.data.persons);
+      console.log(response);
+      setPersons(response.data);
       setError(null);
     } catch (err) {
       setError(err);
@@ -92,34 +93,29 @@ const App = () => {
     window.confirm(`${person.name} is already added, replace the old number?`);
     try {
       const updatedPerson = { ...person, number: newNumber };
-      await axios.put(`${baseUrl}persons/${person.id}`, updatedPerson);
-      setPersons(persons.map((i) => (i.id !== person.id ? i : updatedPerson)));
+      await axios.put(`${baseUrl}persons/${person._id}`, updatedPerson);
+      setPersons(
+        persons.map((i) => (i._id !== person._id ? i : updatedPerson))
+      );
     } catch (err) {
       setError(err.response);
       console.log(err.response);
     }
   };
 
-  const postPerson = async (newPerson) => {
-    try {
-      await axios.post(`${baseUrl}persons`, newPerson);
-      setPersons(persons.concat(newPerson));
-    } catch (err) {
-      setError(err.response);
-      console.log("error");
-    }
-  };
-  const addPerson = (e) => {
+  const addPerson = async (e) => {
     e.preventDefault();
     const newPerson = {
       name: newName,
-      id: persons.length + 1,
       number: newNumber,
     };
-    persons.alreadyExists = persons.find((i) => i.name === newName);
-    persons.alreadyExists
-      ? updatePerson(persons.find((i) => i.name === newName))
-      : postPerson(newPerson);
+    try {
+      await axios.post(`${baseUrl}persons`, newPerson);
+      setPersons([...persons, newPerson]);
+    } catch (err) {
+      err.response.status === 409 ? updatePerson(newPerson) : setError(err);
+    }
+
     setNewNumber("");
     setNewName("");
     e.target.reset();
@@ -127,11 +123,13 @@ const App = () => {
 
   const deletePerson = async (person) => {
     try {
-      await axios.delete(`${baseUrl}persons/${person.id}`);
-      setPersons(persons.filter((i) => i.id !== person.id));
+      console.log(persons);
+      await axios.delete(`${baseUrl}persons/${person._id}`);
+      setPersons(persons.filter((i) => i._id !== person._id));
       setError(null);
     } catch (err) {
       setError(err.response);
+      console.log(err.response);
     }
   };
 
